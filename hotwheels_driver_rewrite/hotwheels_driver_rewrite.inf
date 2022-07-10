@@ -1,0 +1,77 @@
+;
+; hotwheels_driver_rewrite.inf
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=System ; TODO: specify appropriate Class
+ClassGuid={4d36e97d-e325-11ce-bfc1-08002be10318} ; TODO: specify appropriate ClassGuid
+Provider=%ManufacturerName%
+CatalogFile=hotwheels_driver_rewrite.cat
+DriverVer= ; TODO: set DriverVer in stampinf property pages
+PnpLockdown=1
+
+[DestinationDirs]
+DefaultDestDir = 12
+hotwheels_driver_rewrite_Device_CoInstaller_CopyFiles = 11
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+hotwheels_driver_rewrite.sys  = 1,,
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll=1 ; make sure the number matches with SourceDisksNames
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName%=Standard,NT$ARCH$
+
+[Standard.NT$ARCH$]
+%hotwheels_driver_rewrite.DeviceDesc%=hotwheels_driver_rewrite_Device, Root\hotwheels_driver_rewrite ; TODO: edit hw-id
+
+[hotwheels_driver_rewrite_Device.NT]
+CopyFiles=Drivers_Dir
+
+[Drivers_Dir]
+hotwheels_driver_rewrite.sys
+
+;-------------- Service installation
+[hotwheels_driver_rewrite_Device.NT.Services]
+AddService = hotwheels_driver_rewrite,%SPSVCINST_ASSOCSERVICE%, hotwheels_driver_rewrite_Service_Inst
+
+; -------------- hotwheels_driver_rewrite driver install sections
+[hotwheels_driver_rewrite_Service_Inst]
+DisplayName    = %hotwheels_driver_rewrite.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\hotwheels_driver_rewrite.sys
+
+;
+;--- hotwheels_driver_rewrite_Device Coinstaller installation ------
+;
+
+[hotwheels_driver_rewrite_Device.NT.CoInstallers]
+AddReg=hotwheels_driver_rewrite_Device_CoInstaller_AddReg
+CopyFiles=hotwheels_driver_rewrite_Device_CoInstaller_CopyFiles
+
+[hotwheels_driver_rewrite_Device_CoInstaller_AddReg]
+HKR,,CoInstallers32,0x00010000, "WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll,WdfCoInstaller"
+
+[hotwheels_driver_rewrite_Device_CoInstaller_CopyFiles]
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll
+
+[hotwheels_driver_rewrite_Device.NT.Wdf]
+KmdfService =  hotwheels_driver_rewrite, hotwheels_driver_rewrite_wdfsect
+[hotwheels_driver_rewrite_wdfsect]
+KmdfLibraryVersion = $KMDFVERSION$
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+ManufacturerName="<Your manufacturer name>" ;TODO: Replace with your manufacturer name
+DiskName = "hotwheels_driver_rewrite Installation Disk"
+hotwheels_driver_rewrite.DeviceDesc = "hotwheels_driver_rewrite Device"
+hotwheels_driver_rewrite.SVCDESC = "hotwheels_driver_rewrite Service"
