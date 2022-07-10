@@ -30,3 +30,6 @@
 *.exe
 *.out
 *.app
+/.vs/hotwheels_driver_rewrite
+/x64/Release
+/hotwheels_driver_rewrite/x64
