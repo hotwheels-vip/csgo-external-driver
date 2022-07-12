@@ -189,7 +189,11 @@ extern "C" NTKERNELAPI PEB* NTAPI PsGetProcessPeb( PEPROCESS Process );
 // Macro macro bitchhhh
 #define get_current_process PsGetCurrentProcess
 
-#define dbg_print( string, ... ) DbgPrintEx( DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, string, __VA_ARGS__ );
+#ifdef _DEBUG
+#	define dbg_print( string, ... ) DbgPrintEx( DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, string, __VA_ARGS__ );
+#else
+#	define dbg_print( string, ... ) 
+#endif
 
 // If a variable we use from usermode gets "corrupted" we NEED to make sure it isn't above the x86 maxiumum address. This will cause a BSOD!
 #define x86( address ) ( reinterpret_cast< ULONG64 >( address ) <= 0xFFFFFFFF )
