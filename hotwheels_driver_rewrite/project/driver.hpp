@@ -183,6 +183,8 @@ extern "C" NTKERNELAPI PEB* NTAPI PsGetProcessPeb( PEPROCESS Process );
 #define random                        RtlRandomEx
 #define query_system_time_precise     KeQuerySystemTimePrecise
 #define register_callbacks            ObRegisterCallbacks
+#define attach_process                KeAttachProcess
+#define detach_process                KeDetachProcess
 
 // Macro macro bitchhhh
 #define get_current_process PsGetCurrentProcess
