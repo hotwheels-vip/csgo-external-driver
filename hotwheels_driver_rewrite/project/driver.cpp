@@ -21,7 +21,7 @@ NTSTATUS device_control_callback( PDEVICE_OBJECT device_object, PIRP irp )
 	PIO_STACK_LOCATION irp_stack = current_irp_stack_location( irp );
 
 	if ( !irp_stack ) {
-		dbg_print( "[hotwheels] [!irp_stack!] Unknown" );
+		dbg_print( "[hotwheels] [!irp_stack!]" );
 
 		return STATUS_ABANDONED;
 	}
@@ -67,7 +67,7 @@ NTSTATUS device_control_callback( PDEVICE_OBJECT device_object, PIRP irp )
 
 		if ( get_process_wow64_process( process ) ) {
 			if ( !x86( info->address ) ) {
-				dbg_print( "[hotwheels] [!x86!] " );
+				dbg_print( "[hotwheels] [!x86!]" );
 
 				break;
 			}
@@ -77,7 +77,7 @@ NTSTATUS device_control_callback( PDEVICE_OBJECT device_object, PIRP irp )
 		return_code = copy_virtual_memory( request_process, info->memory_pointer, process, info->address, info->size, KernelMode, &return_bytes );
 
 		if ( !NT_SUCCESS( return_code ) ) {
-			dbg_print( "[hotwheels] [!copy_virtual_memory!] 0x%x 0x%x", return_code, info->address );
+			dbg_print( "[hotwheels] [!copy_virtual_memory!] %ul 0x%x", return_code, info->address );
 
 			break;
 		}
@@ -117,7 +117,7 @@ NTSTATUS device_control_callback( PDEVICE_OBJECT device_object, PIRP irp )
 
 		if ( get_process_wow64_process( process ) ) {
 			if ( !x86( info->address ) ) {
-				dbg_print( "[hotwheels] [!x86!] " );
+				dbg_print( "[hotwheels] [!x86!]" );
 
 				break;
 			}
@@ -127,7 +127,7 @@ NTSTATUS device_control_callback( PDEVICE_OBJECT device_object, PIRP irp )
 		return_code = copy_virtual_memory( process, info->address, request_process, info->memory_pointer, info->size, KernelMode, &return_bytes );
 
 		if ( !NT_SUCCESS( return_code ) ) {
-			dbg_print( "[hotwheels] [!copy_virtual_memory!] 0x%x 0x%x %ul", return_code, info->address );
+			dbg_print( "[hotwheels] [!copy_virtual_memory!] %ul 0x%x", return_code, info->address );
 
 			break;
 		}
@@ -157,7 +157,7 @@ NTSTATUS device_control_callback( PDEVICE_OBJECT device_object, PIRP irp )
 		}
 
 		if ( get_process_wow64_process( process ) ) {
-			KeAttachProcess( process );
+			attach_process( process );
 
 			PPEB32 peb32 = ( PPEB32 )get_process_wow64_process( process );
 
@@ -178,7 +178,7 @@ NTSTATUS device_control_callback( PDEVICE_OBJECT device_object, PIRP irp )
 				}
 			}
 
-			KeDetachProcess( );
+			detach_process( );
 		} else if ( get_process_peb( process ) ) {
 			PEB* peb = get_process_peb( process );
 
@@ -209,13 +209,13 @@ NTSTATUS device_control_callback( PDEVICE_OBJECT device_object, PIRP irp )
 		UNICODE_STRING dos_devices_link_name = RTL_CONSTANT_STRING( L"\\DosDevices\\hotwheels" );
 
 		if ( !NT_SUCCESS( delete_symbolic_link( &dos_devices_link_name ) ) ) {
-			dbg_print( "[hotwheels] [!delete_symbolic_link!] " );
+			dbg_print( "[hotwheels] [!delete_symbolic_link!]" );
 		}
 
 		delete_device( device_object );
 		delete_driver( g_driver_object );
 
-		dbg_print( "[hotwheels] Successfully unloaded driver. " );
+		dbg_print( "[hotwheels] Successfully unloaded driver." );
 
 		break;
 	}
@@ -224,14 +224,6 @@ NTSTATUS device_control_callback( PDEVICE_OBJECT device_object, PIRP irp )
 	IoCompleteRequest( irp, IO_NO_INCREMENT );
 
 	return STATUS_SUCCESS;
-}
-
-OB_PREOP_CALLBACK_STATUS protect_processes_callback( PVOID registration_context, POB_PRE_OPERATION_INFORMATION pre_operation_info )
-{
-	UNREFERENCED_PARAMETER( registration_context );
-	UNREFERENCED_PARAMETER( pre_operation_info );
-
-	return OB_PREOP_SUCCESS;
 }
 
 NTSTATUS create_ioctl_device( PDRIVER_OBJECT driver_object )
@@ -285,7 +277,7 @@ NTSTATUS driver_entry( PDRIVER_OBJECT driver_object, PUNICODE_STRING reg_path )
 		return STATUS_ABANDONED;
 	}
 
-	dbg_print( "[hotwheels] Driver initialized.", return_code );
+	dbg_print( "[hotwheels] Driver initialized." );
 
 	return STATUS_SUCCESS;
 }
