@@ -32,4 +32,9 @@
     <None Include="project\driver.hpp" />
     <None Include="project\.clang-format" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="project\hash.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>
