@@ -23,7 +23,7 @@ struct WRITE_MEMORY_CALLBACK_INPUT {
 
 struct BASE_ADDRESS_CALLBACK_INPUT {
 	HANDLE pid;
-	WCHAR module[ 0x256 ];
+	ULONG64 hash;
 
 	ULONG64 response;
 };
@@ -185,6 +185,7 @@ extern "C" NTKERNELAPI PEB* NTAPI PsGetProcessPeb( PEPROCESS Process );
 #define register_callbacks            ObRegisterCallbacks
 #define attach_process                KeAttachProcess
 #define detach_process                KeDetachProcess
+#define string_cb_printf              RtlStringCbPrintfA
 
 // Macro macro bitchhhh
 #define get_current_process PsGetCurrentProcess

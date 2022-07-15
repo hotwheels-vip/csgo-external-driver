@@ -1,5 +1,7 @@
 #include "driver.hpp"
 
+#include "hash.hpp"
+
 inline PDRIVER_OBJECT g_driver_object{ };
 inline PVOID g_registration_handle{ };
 
@@ -171,7 +173,18 @@ NTSTATUS device_control_callback( PDEVICE_OBJECT device_object, PIRP irp )
 			      pListEntry != &( ( PPEB_LDR_DATA32 )peb32->Ldr )->InLoadOrderModuleList; pListEntry = ( PLIST_ENTRY32 )pListEntry->Flink ) {
 				PLDR_DATA_TABLE_ENTRY32 entry = CONTAINING_RECORD( pListEntry, LDR_DATA_TABLE_ENTRY32, InLoadOrderLinks );
 
-				if ( wcscmp( reinterpret_cast< wchar_t* >( entry->BaseDllName.Buffer ), info->module ) == 0 ) {
+				CHAR converted[ 0x256 ]{ };
+
+				if ( !NT_SUCCESS( string_cb_printf( converted, 0x256 * sizeof( char ), "%ws", entry->BaseDllName.Buffer ) ) ) {
+					dbg_print( "[hotwheels] [!string_cb_printf!]" );
+
+					break;
+				}
+
+				dbg_print( "[hotwheels] %ws | %s", entry->BaseDllName.Buffer, converted );
+				dbg_print( "[hotwheels] %ul | %ul", info->hash, ___( converted ) );
+
+				if ( ___( converted ) == info->hash ) {
 					info->response = entry->DllBase;
 
 					break;
@@ -192,7 +205,17 @@ NTSTATUS device_control_callback( PDEVICE_OBJECT device_object, PIRP irp )
 			      list_entry      = list_entry->Flink ) {
 				PLDR_DATA_TABLE_ENTRY entry = CONTAINING_RECORD( list_entry, LDR_DATA_TABLE_ENTRY, InLoadOrderLinks );
 
-				if ( wcscmp( reinterpret_cast< wchar_t* >( entry->BaseDllName.Buffer ), info->module ) == 0 ) {
+				CHAR converted[ 0x256 ]{ };
+
+				if ( !NT_SUCCESS( string_cb_printf( converted, 0x256 * sizeof( char ), "%ws", entry->BaseDllName.Buffer ) ) ) {
+					dbg_print( "[hotwheels] [!string_cb_printf!]" );
+
+					break;
+				}
+
+				dbg_print( "[hotwheels] %ws | %s", entry->BaseDllName.Buffer, converted );
+
+				if ( ___( converted ) == info->hash ) {
 					info->response = reinterpret_cast< ULONG64 >( entry->DllBase );
 
 					break;
@@ -310,7 +333,7 @@ NTSTATUS mm_driver_entry( PDRIVER_OBJECT driver_object, PUNICODE_STRING reg_path
 		ULONG_PTR information{ };
 
 		if ( !NT_SUCCESS( device_io_control( device_handle, IOCTL_UNLOAD, 0x0, nullptr, 0x0, nullptr, 0x0, &information ) ) ) {
-			dbg_print( "[hotwheels] [!device_io_control!] " );
+			dbg_print( "[hotwheels] [!device_io_control!]" );
 		}
 	}
 
